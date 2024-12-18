@@ -34,6 +34,7 @@ use OC\Command\CronBus;
 use OC\Comments\ManagerFactory as CommentsManagerFactory;
 use OC\Contacts\ContactsMenu\ActionFactory;
 use OC\Contacts\ContactsMenu\ContactsStore;
+use OC\Conversion\ConversionManager;
 use OC\DB\Connection;
 use OC\DB\ConnectionAdapter;
 use OC\Diagnostics\EventLogger;
@@ -143,6 +144,7 @@ use OCP\Command\IBus;
 use OCP\Comments\ICommentsManager;
 use OCP\Contacts\ContactsMenu\IActionFactory;
 use OCP\Contacts\ContactsMenu\IContactsStore;
+use OCP\Conversion\IConversionManager;
 use OCP\Defaults;
 use OCP\Diagnostics\IEventLogger;
 use OCP\Diagnostics\IQueryLogger;
@@ -1257,6 +1259,8 @@ class Server extends ServerContainer implements IServerContainer {
 		$this->registerAlias(\OCP\Share\IPublicShareTemplateFactory::class, \OC\Share20\PublicShareTemplateFactory::class);
 
 		$this->registerAlias(ITranslationManager::class, TranslationManager::class);
+
+		$this->registerAlias(IConversionManager::class, ConversionManager::class);
 
 		$this->registerAlias(ISpeechToTextManager::class, SpeechToTextManager::class);
 

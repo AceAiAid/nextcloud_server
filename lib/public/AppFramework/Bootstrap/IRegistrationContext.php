@@ -415,6 +415,19 @@ interface IRegistrationContext {
 	public function registerTaskProcessingTaskType(string $taskProcessingTaskTypeClass): void;
 
 	/**
+	 * Register an implementation of \OCP\Conversion\IConversionProvider
+	 * that will handle the conversion of files from one MIME type to another
+	 *
+	 * @param string $conversionProviderClass
+	 * @psalm-param class-string<\OCP\Conversion\IConversionProvider> $conversionProviderClass
+	 *
+	 * @return void
+	 *
+	 * @since 31.0.0
+	 */
+	public function registerConversionProvider(string $conversionProviderClass): void;
+
+	/**
 	 * Register a mail provider
 	 *
 	 * @param string $class
