@@ -88,10 +88,10 @@ This file is generated from multiple sources. Included packages:
 	- version: 8.0.1
 	- license: MIT
 - @nextcloud/upload
-	- version: 1.7.0
+	- version: 1.7.1
 	- license: AGPL-3.0-or-later
 - @nextcloud/vue
-	- version: 8.20.0
+	- version: 8.21.0
 	- license: AGPL-3.0-or-later
 - @vueuse/core
 	- version: 11.1.0
@@ -103,7 +103,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 4.5.0
 	- license: Apache-2.0
 - axios
-	- version: 1.7.7
+	- version: 1.7.9
 	- license: MIT
 - base64-js
 	- version: 1.5.1
