@@ -12,8 +12,11 @@ namespace OC\Core\Controller;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\UserRateLimit;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\OCS\OCSException;
+use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
 use OCP\Conversion\IConversionManager;
 use OCP\Files\File;
@@ -33,6 +36,21 @@ class ConversionApiController extends OCSController {
 		parent::__construct($appName, $request);
 	}
 
+	/**
+	 * Converts a file from one MIME type to another
+	 *
+	 * @param int $fileId ID of the file to be converted
+	 * @param string $targetMimeType The MIME type to which you want to convert the file
+	 * @param string|null $destination The target path of the converted file. Written to a temporary file if left empty
+	 *
+	 * @return DataResponse<Http::STATUS_CREATED, array{path: string}, array{}>
+	 *
+	 * 201: File was converted and written to the destination or temporary file
+	 *
+	 * @throws OCSException The file was unable to be converted
+	 * @throws OCSNotFoundException The file to be converted was not found
+	 */
+	#[NoAdminRequired]
 	#[UserRateLimit(limit: 25, period: 120)]
 	#[ApiRoute(verb: 'POST', url: '/convert', root: '/conversion')]
 	public function convert(int $fileId, string $targetMimeType, ?string $destination = null): DataResponse {
@@ -40,18 +58,14 @@ class ConversionApiController extends OCSController {
 		$file = $userFolder->getFirstNodeById($fileId);
 
 		if (!($file instanceof File)) {
-			return new DataResponse([
-				'message' => $this->l10n->t('File not found'),
-			], Http::STATUS_NOT_FOUND);
+			throw new OCSNotFoundException();
 		}
 
 		try {
 			$destination = $userFolder->getFullpath($destination);
 			$convertedFile = $this->conversionManager->convert($file, $targetMimeType, $destination);
 		} catch (\Exception $e) {
-			return new DataResponse([
-				'message' => $e->getMessage(),
-			], Http::STATUS_INTERNAL_SERVER_ERROR);
+			throw new OCSException($e->getMessage());
 		}
 
 		return new DataResponse([
