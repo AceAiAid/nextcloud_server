@@ -1,0 +1,13 @@
+# 创建必要的目录
+mkdir -p config custom_apps themes
+chmod -R 777 config custom_apps themes  # 开发环境可以这样设置权限
+
+# 构建和启动
+docker-compose up --build -d
+
+# 查看日志
+docker-compose logs -f
+
+# 完全清理需要执行prune，之前我的数据库密码不对，删除container也还是不对，必须得完全prune才行
+docker-compose down -v
+docker volume prune

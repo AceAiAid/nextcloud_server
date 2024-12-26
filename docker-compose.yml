@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:10.6
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - nextcloud_db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USERNAME}
+    networks:
+      - nextcloud_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 53725:80
+    volumes:
+      - nextcloud_data:/var/www/html/data
+      - nextcloud_config:/var/www/html/config
+      - nextcloud_apps:/var/www/html/custom_apps
+      - nextcloud_themes:/var/www/html/themes
+      - "//e/nextcloud_shared_data:/var/www/html/data/files/nextcloud_shared_data"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_PORT=3306
+    entrypoint: |
+      bash -c '
+      mkdir -p /var/www/html/{data/files/nextcloud_shared_data,config}
+      chown -R www-data:www-data /var/www/html
+      chmod -R 770 /var/www/html/{config,data}
+      apache2-foreground
+      '
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nextcloud_network
+
+volumes:
+  nextcloud_db:
+  nextcloud_data:
+  nextcloud_config:
+  nextcloud_apps:
+  nextcloud_themes:
+
+networks:
+  nextcloud_network:
+    driver: bridge
